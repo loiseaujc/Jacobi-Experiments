@@ -19,15 +19,6 @@ stdlib = "*"
 openmp = "*"
 spacefill = {git="https://github.com/program--/spacefill.git"}
 
-[dev-dependencies]
-
-[[test]]
-name="runTests"
-source-dir="test"
-main="check.f90"
-
-
-[[example]]
-name="demo"
-source-dir="example"
-main="demo.f90"
+[preprocess]
+[preprocess.cpp]
+macros = ["NDIM=3"]
