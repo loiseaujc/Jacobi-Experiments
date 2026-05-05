@@ -99,7 +99,7 @@ contains
       ! Jacobi iteration.
       call textbook_kernel(n, v, u, b, dx)
       ! Compute error norm.
-      l2_norm = norm2(u - v)
+      if (mod(iteration, 1000) == 0) l2_norm = norm2(u - v)
       ! Update variable.
       u = v
       ! Update iteration counter.
@@ -145,7 +145,7 @@ contains
       ! Update variables.
       call textbook_kernel(n, u, v, b, dx)
       ! Compute error norm.
-      l2_norm = norm2(u - v)
+      if (mod(iteration, 1000) == 0) l2_norm = norm2(u - v)
       ! Update iteration counter.
       iteration = iteration + 2
    end do

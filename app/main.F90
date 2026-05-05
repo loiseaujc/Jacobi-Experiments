@@ -8,7 +8,7 @@ program main
                                  otf_norm_solver, doconcurrent_solver
 
    implicit none(type, external)
-   integer(ilp), parameter :: n = 128, maxiter = n**2
+   integer(ilp), parameter :: n = 128, maxiter = 5000
 #if NDIM == 3
    real(dp), allocatable :: b(:, :, :), u(:, :, :)
 #else
