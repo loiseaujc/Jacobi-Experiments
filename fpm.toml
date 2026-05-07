@@ -19,4 +19,4 @@ openmp = "*"
 
 [preprocess]
 [preprocess.cpp]
-macros = ["NDIM=3"]
+macros = ["NDIM=2"]
