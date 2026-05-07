@@ -1,9 +1,8 @@
 module Jacobi_Experiments
-   use stdlib_linalg_constants, only: dp, ilp, lk
+   use, intrinsic :: iso_fortran_env, only: ilp => int32, dp => real64
    implicit none(external)
    private
 
-   integer, parameter :: i8 = selected_int_kind(18)  ! 64-bit integer kind
    real(dp), parameter :: eps = epsilon(1.0_dp)
    real(dp), parameter :: tol = sqrt(eps)
 
@@ -57,13 +56,13 @@ module Jacobi_Experiments
       end function doconcurrent_solver
 
       module function zorder_solver(n, b, lut, bc, maxiter) result(u)
-        implicit none(external)
-        integer(ilp), intent(in) :: n
-        real(dp), intent(in) :: b(:)
-        integer(ilp), intent(in) :: lut(:, :)
-        logical(lk), intent(in) :: bc(:)
-        integer(ilp), intent(in) :: maxiter
-        real(dp), allocatable :: u(:)
+         implicit none(external)
+         integer(ilp), intent(in) :: n
+         real(dp), intent(in) :: b(:)
+         integer(ilp), intent(in) :: lut(:, :)
+         logical, intent(in) :: bc(:)
+         integer(ilp), intent(in) :: maxiter
+         real(dp), allocatable :: u(:)
       end function zorder_solver
    end interface
 

@@ -1,9 +1,7 @@
 module morton
-   use stdlib_linalg_constants, only: dp, ilp, lk
-   use spacefill_morton, only: mc, imc
+   use, intrinsic:: iso_fortran_env, only: ilp => int32, i8 => int64, dp => real64
    implicit none(type, external)
    private
-   integer, parameter :: i8 = selected_int_kind(18)  ! 64-bit integer kind
    public :: lookup_tables
    public :: field2vec
 
@@ -13,7 +11,7 @@ contains
       implicit none(type, external)
       integer(ilp), intent(in) :: n
       integer(ilp), allocatable, intent(out) :: lut(:, :)
-      logical(lk), allocatable, intent(out) :: bc(:)
+      logical, allocatable, intent(out) :: bc(:)
       integer(ilp) :: i, j, k, npts
       ! Initialize arrays.
 #if NDIM == 3
@@ -113,4 +111,37 @@ contains
       code = ior(ior(part1by2(x), ishft(part1by2(y), 1)), &
                  ishft(part1by2(z), 2))
    end function morton3d
+
+   pure elemental integer function mc(x, y)
+      integer, value :: x, y
+      integer :: i
+      mc = 0
+      do i = 0, bit_size(x)
+         block
+            integer :: mi, mx, my
+            mi = lshift(1, i)
+            mx = iand(x, mi)
+            my = iand(y, mi)
+            mc = ior(mc, lshift(mx, i))
+            mc = ior(mc, lshift(my, i + 1))
+         end block
+      end do
+   end function
+
+   pure elemental subroutine imc(m, x, y)
+      integer, value :: m
+      integer, intent(out) :: x, y
+      x = mc_extract(m)
+      y = mc_extract(rshift(m, 1))
+   end subroutine
+
+   pure elemental integer function mc_extract(m)
+      integer, value :: m
+      m = iand(m, z'55555555')
+      m = iand(ior(m, rshift(m, 1)), z'33333333')
+      m = iand(ior(m, rshift(m, 2)), z'0F0F0F0F')
+      m = iand(ior(m, rshift(m, 4)), z'00FF00FF')
+      m = iand(ior(m, rshift(m, 8)), z'0000FFFF')
+      mc_extract = m
+   end function
 end module morton

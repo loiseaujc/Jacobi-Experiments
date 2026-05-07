@@ -15,10 +15,8 @@ auto-examples = true
 module-naming = false
 
 [dependencies]
-stdlib = "*"
 openmp = "*"
-spacefill = {git="https://github.com/program--/spacefill.git"}
 
 [preprocess]
 [preprocess.cpp]
-macros = ["NDIM=2"]
+macros = ["NDIM=3"]
