@@ -3,11 +3,12 @@ program main
    use omp_lib, only: omp_get_wtime
 
    use morton, only: field2vec, lookup_tables
-   use Jacobi_Experiments, only: doconcurrent_solver, zorder_solver
+   use Jacobi_Experiments, only: jacobi_solver => doconcurrent_solver
+   use Gauss_Seidel_Experiments, only: lexicographic_solver
 
    implicit none(type, external)
-   integer(ilp), parameter :: n = 128
-   integer(ilp), parameter :: maxiter = 1000
+   integer(ilp), parameter :: n = 512
+   integer(ilp), parameter :: maxiter = n**2
    real(dp), parameter :: pi = 4.0_dp*atan(1.0_dp)
 
    integer(ilp) :: i, j, k
@@ -21,6 +22,7 @@ program main
    real(dp), allocatable :: bvec(:), uvec(:)
    real(dp) :: start_time, end_time
    real(dp), allocatable :: x(:), y(:), z(:)
+   real(dp) :: scale
 
    !----- Create right-hand side term -----!
    print *, "---------------"
@@ -45,6 +47,9 @@ program main
       uref(i, j) = sin(2*pi*x(i))*sin(2*pi*y(j))
    end do
 #endif
+    scale = norm2(b) * (x(2)-x(1))
+    b = b / scale
+    uref = uref / scale
    print *, "    - Number of points per direction :", n
    print *
 
@@ -54,23 +59,21 @@ program main
 
    !> doconcurrent Jacobi solver.
    start_time = omp_get_wtime()
-   u = doconcurrent_solver(b, maxiter)
+   u = jacobi_solver(b, maxiter)
    end_time = omp_get_wtime()
    print *, "    - Time-to-solution     :", end_time - start_time
    print *, "    - Max. pointwise error :", maxval(abs(u - uref))
    print *
 
-   !> Z-fill ordering.
-   print *, "Computing look-up table..."
-   call lookup_tables(n, lut, bc)
-   bvec = field2vec(b)
-   print *, "Computation done."
-   print *
+   !> Gauss-Seidel solver.
    start_time = omp_get_wtime()
-   uvec = zorder_solver(n, bvec, lut, bc, maxiter)
+   u = lexicographic_solver(b, maxiter)
    end_time = omp_get_wtime()
    print *, "    - Time-to-solution     :", end_time - start_time
-   print *, "    - Max. pointwise error :", maxval(abs(uvec - field2vec(uref)))
+   print *, "    - Max. pointwise error :", maxval(abs(u - uref))
+   print *
+
+
 
 contains
 

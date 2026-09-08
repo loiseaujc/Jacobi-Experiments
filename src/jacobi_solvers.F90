@@ -303,7 +303,7 @@ contains
       integer(ilp) :: z
 
       do concurrent(z=0:n**2 - 1,.not. bc(z))
-         u(z) = 0.25_dp*(b(z)*dx**2 + sum(v(lut(:, z))))
+         u(z) = 0.25_dp*(b(z)*dx**2 + v(lut(1, z)) + v(lut(2, z)) + v(lut(3, z)) + v(lut(4, z)))
       end do
 #endif
    end subroutine zorder_kernel
