@@ -4,7 +4,8 @@ program main
 
    use morton, only: field2vec, lookup_tables
    use Jacobi_Experiments, only: jacobi_solver => doconcurrent_solver
-   use Gauss_Seidel_Experiments, only: lexicographic_solver
+   use Gauss_Seidel_Experiments, only: lexicographic_solver, peeled_solver, &
+                                       double_peeled_solver, redblack_solver
 
    implicit none(type, external)
    integer(ilp), parameter :: n = 512
@@ -65,7 +66,7 @@ program main
    print *, "    - Max. pointwise error :", maxval(abs(u - uref))
    print *
 
-   !> Gauss-Seidel solver.
+   !> Textbook Gauss-Seidel solver.
    start_time = omp_get_wtime()
    u = lexicographic_solver(b, maxiter)
    end_time = omp_get_wtime()
@@ -73,7 +74,29 @@ program main
    print *, "    - Max. pointwise error :", maxval(abs(u - uref))
    print *
 
+   !> Peeled Gauss-Seidel solver.
+   start_time = omp_get_wtime()
+   u = peeled_solver(b, maxiter)
+   end_time = omp_get_wtime()
+   print *, "    - Time-to-solution     :", end_time - start_time
+   print *, "    - Max. pointwise error :", maxval(abs(u - uref))
+   print *
 
+   !> Double peeled Gauss-Seidel solver.
+   start_time = omp_get_wtime()
+   u = double_peeled_solver(b, maxiter)
+   end_time = omp_get_wtime()
+   print *, "    - Time-to-solution     :", end_time - start_time
+   print *, "    - Max. pointwise error :", maxval(abs(u - uref))
+   print *
+
+   !> Red/Black Gauss-Seidel solver.
+   start_time = omp_get_wtime()
+   u = redblack_solver(b, maxiter)
+   end_time = omp_get_wtime()
+   print *, "    - Time-to-solution     :", end_time - start_time
+   print *, "    - Max. pointwise error :", maxval(abs(u - uref))
+   print *
 
 contains
 

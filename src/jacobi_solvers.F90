@@ -257,26 +257,31 @@ contains
 #endif
    end subroutine textbook_kernel
 
-   pure subroutine doconcurrent_kernel(n, u, v, b, dx)
-      implicit none(external)
-      integer(ilp), intent(in) :: n
+    pure subroutine doconcurrent_kernel(n, u, v, b, dx)
+        implicit none(external)
+        integer(ilp), intent(in) :: n
 #if NDIM == 3
-      real(dp), intent(out) :: u(n, n, n)
-      real(dp), intent(in)  :: v(n, n, n), b(n, n, n), dx
-      integer(ilp) :: i, j, k
-      do concurrent(k=2:n - 1, j=2:n - 1, i=2:n - 1)
-         u(i, j, k) = 1.0_dp/6.0_dp*(b(i, j, k)*dx**2 + (v(i + 1, j, k) + v(i - 1, j, k) &
+        real(dp), intent(out) :: u(n, n, n)
+        real(dp), intent(in)  :: v(n, n, n), b(n, n, n), dx
+        integer(ilp) :: i, j, k
+        real(dp) :: dx2
+        do concurrent(k=2:n - 1, j=2:n - 1, i=2:n - 1)
+            u(i, j, k) = 1.0_dp/6.0_dp*(b(i, j, k)*dx**2 + (v(i + 1, j, k) + v(i - 1, j, k) &
                                                          + v(i, j + 1, k) + v(i, j - 1, k) &
                                                          + v(i, j, k + 1) + v(i, j, k - 1)))
-      end do
+        end do
 #else
-      real(dp), intent(out) :: u(n, n)
-      real(dp), intent(in) :: v(n, n), b(n, n), dx
-      integer(ilp) :: i, j
-      do concurrent(j=2:n - 1, i=2:n - 1)
-         u(i, j) = 0.25_dp*(b(i, j)*dx**2 + (v(i + 1, j) + v(i - 1, j) &
-                                             + v(i, j + 1) + v(i, j - 1)))
-      end do
+        real(dp), intent(out) :: u(n, n)
+        real(dp), intent(in) :: v(n, n), b(n, n), dx
+        integer(ilp) :: i, j
+        real(dp) :: dx2
+        dx2 = dx**2
+        do concurrent (j=2:n-1) default(none) shared(n, u, v, b, dx2) local(i)
+            do concurrent(i=2:n-1) default(none) shared(u, v, b, dx2, j)
+                u(i, j) = 0.25_dp*(b(i, j)*dx2 + (v(i + 1, j) + v(i - 1, j) &
+                                               +  v(i, j + 1) + v(i, j - 1)))
+            end do
+        end do
 #endif
    end subroutine doconcurrent_kernel
 
